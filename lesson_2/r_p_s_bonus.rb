@@ -36,18 +36,10 @@ def display_results(player, computer)
   end
 end
 
-def player_wins?(player, computer)
-  win?(player, computer)
-end
-
-def comp_wins?(computer, player)
-  win?(computer, player)
-end
-
 def score(first, second, player_wins, comp_wins)
-  if player_wins?(first, second)
+  if win?(first, second)
     player_wins.push(1)
-  elsif comp_wins?(second, first)
+  elsif win?(second, first)
     comp_wins.push(1)
   end
   player_wins_count = player_wins.inject(:+)
