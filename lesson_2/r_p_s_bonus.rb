@@ -49,7 +49,7 @@ def display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
   prompt("computer's score is #{comp_wins_count}") unless comp_wins.empty?
 end
 
-def display_game_winner(player_wins_count, comp_wins_count)
+def display_round_winner(player_wins_count, comp_wins_count)
   prompt("You won 5 times!") if player_wins_count == 5
   prompt("Computer won 5 times!") if comp_wins_count == 5
 end
@@ -83,7 +83,7 @@ loop do
     player_wins_count = player_wins.inject(:+)
     comp_wins_count = comp_wins.inject(:+)
     display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
-    display_game_winner(player_wins_count, comp_wins_count)
+    display_round_winner(player_wins_count, comp_wins_count)
 
     break if player_wins.length == 5 || comp_wins.length == 5
   end
