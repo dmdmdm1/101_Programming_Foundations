@@ -7,11 +7,11 @@ NUMBERS = {
   5 => "spock"
 }
 WINNING_COMBINATIONS = {
-  "1" => ["3", "4"],
-  "2" => ["1", "5"],
-  "3" => ["2", "5"],
-  "4" => ["5", "2"],
-  "5" => ["3", "1"]
+  "rock" => ["scissors", "lizard"],
+  "paper" => ["rock", "spock"],
+  "scissors" => ["paper", "spock"],
+  "lizard" => ["spock", "paper"],
+  "spock" => ["scissors", "rock"]
 }
 
 def prompt(message)
@@ -36,24 +36,20 @@ def display_results(player, computer)
   end
 end
 
-def score(first, second, player_wins, comp_wins)
+def increment_winner_score(first, second, player_wins, comp_wins)
   if win?(first, second)
     player_wins.push(1)
   elsif win?(second, first)
     comp_wins.push(1)
   end
-  player_wins_count = player_wins.inject(:+)
-  comp_wins_count = comp_wins.inject(:+)
-  count_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
-  round_winner(player_wins_count, comp_wins_count)
 end
 
-def count_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
+def display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
   prompt("player's score is #{player_wins_count}") unless player_wins.empty?
   prompt("computer's score is #{comp_wins_count}") unless comp_wins.empty?
 end
 
-def round_winner(player_wins_count, comp_wins_count)
+def display_game_winner(player_wins_count, comp_wins_count)
   prompt("You won 5 times!") if player_wins_count == 5
   prompt("Computer won 5 times!") if comp_wins_count == 5
 end
@@ -78,10 +74,17 @@ loop do
     end
 
     computer_choice = VALID_CHOICES.sample
-    prompt("You chose #{NUMBERS[choice.to_i]}, computer chose" \
-    " #{NUMBERS[computer_choice.to_i]}")
+
+    choice = NUMBERS[choice.to_i]
+    computer_choice = NUMBERS[computer_choice.to_i]
+    prompt("You chose #{choice}, computer chose #{computer_choice}")
     display_results(choice, computer_choice)
-    score(choice, computer_choice, player_wins, comp_wins)
+    increment_winner_score(choice, computer_choice, player_wins, comp_wins)
+    player_wins_count = player_wins.inject(:+)
+    comp_wins_count = comp_wins.inject(:+)
+    display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
+    display_game_winner(player_wins_count, comp_wins_count)
+
     break if player_wins.length == 5 || comp_wins.length == 5
   end
 
