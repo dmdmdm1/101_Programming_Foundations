@@ -22,6 +22,10 @@ def clear_screen
   system("cls") || system("clear")
 end
 
+def convert_choice_to_move(first)
+  NUMBERS[first.to_i]
+end
+
 def win?(first, second)
   WINNING_COMBINATIONS[first].include?(second)
 end
@@ -42,6 +46,10 @@ def increment_winner_score(first, second, player_wins, comp_wins)
   elsif win?(second, first)
     comp_wins.push(1)
   end
+end
+
+def calculate_score_from_tally(wins)
+  wins.inject(:+)
 end
 
 def display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
@@ -75,13 +83,15 @@ loop do
 
     computer_choice = VALID_CHOICES.sample
 
-    choice = NUMBERS[choice.to_i]
-    computer_choice = NUMBERS[computer_choice.to_i]
+    choice = convert_choice_to_move(choice)
+    computer_choice = convert_choice_to_move(computer_choice)
     prompt("You chose #{choice}, computer chose #{computer_choice}")
     display_results(choice, computer_choice)
+
     increment_winner_score(choice, computer_choice, player_wins, comp_wins)
-    player_wins_count = player_wins.inject(:+)
-    comp_wins_count = comp_wins.inject(:+)
+    player_wins_count = calculate_score_from_tally(player_wins)
+    comp_wins_count = calculate_score_from_tally(comp_wins)
+
     display_wins(player_wins, comp_wins, player_wins_count, comp_wins_count)
     display_round_winner(player_wins_count, comp_wins_count)
 
@@ -92,6 +102,7 @@ loop do
   loop do
     prompt("Do you want to play again? Please enter y or n")
     answer = gets.chomp.downcase
+
     if %w(y n).include?(answer)
       break
     else
