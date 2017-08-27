@@ -7,6 +7,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
 INITIAL_MARKER = " "
 PLAYER_MARKER = "X"
 COMPUTER_MARKER = "O"
+OPPONENTS = %w[player computer]
 
 def prompt(msg)
   puts "=>#{msg}"
@@ -38,14 +39,37 @@ def initialize_board
   new_board
 end
 
+def choose_first_player
+  prompt("choose who should begin the game: #{OPPONENTS.join(' or ')}")
+  gets.chomp
+end
+
 def empty_squares(brd)
   brd.keys.select { |num| brd[num] == INITIAL_MARKER }
+end
+
+def joinor(brd)
+  empty_squares(brd)[0..-2].join(", ").concat(
+    " or " + empty_squares(brd).last.to_s
+  )
+end
+
+def place_piece!(current_player, board)
+  if current_player == OPPONENTS[0]
+    player_places_piece!(board)
+  else
+    computer_places_piece!(board)
+  end
+end
+
+def alternate_player(current_player)
+  current_player == OPPONENTS[0] ? OPPONENTS[1] : OPPONENTS[0]
 end
 
 def player_places_piece!(brd)
   square = " "
   loop do
-    prompt("Choose a square (#{empty_squares(brd).join(',')})")
+    prompt("Choose a position #{joinor(brd)}")
     square = gets.chomp.to_i
     break if empty_squares(brd).include?(square)
     prompt("sorry, that´s not a valid choice.")
@@ -54,8 +78,46 @@ def player_places_piece!(brd)
 end
 
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
-  brd[square] = COMPUTER_MARKER
+  if opportunity?(brd) || danger?(brd)
+    opportunistic_or_defensive_move(brd)
+  elsif empty_squares(brd).include?(5)
+    brd[5] = COMPUTER_MARKER
+  else
+    square = empty_squares(brd).sample
+    brd[square] = COMPUTER_MARKER
+  end
+  brd[square]
+end
+
+def danger?(brd)
+  WINNING_LINES.each do |line|
+    return true if brd.values_at(*line).count(PLAYER_MARKER) == 2 &&
+                   brd.values_at(*line).count(INITIAL_MARKER) == 1
+  end
+  false
+end
+
+def opportunity?(brd)
+  WINNING_LINES.each do |line|
+    return true if brd.values_at(*line).count(COMPUTER_MARKER) == 2 &&
+                   brd.values_at(*line).count(INITIAL_MARKER) == 1
+  end
+  false
+end
+
+def deciding_line(brd)
+  marker = opportunity?(brd) ? COMPUTER_MARKER : PLAYER_MARKER
+  WINNING_LINES.each do |line|
+    return line if brd.values_at(*line).count(marker) == 2 &&
+                   brd.values_at(*line).count(INITIAL_MARKER) == 1
+  end
+  false
+end
+
+def opportunistic_or_defensive_move(brd)
+  deciding_line(brd).each do |square|
+    brd[square] = COMPUTER_MARKER if brd[square] == INITIAL_MARKER
+  end
 end
 
 def board_full?(brd)
@@ -78,28 +140,58 @@ def detect_winner(brd)
 end
 
 loop do
-  board = initialize_board
+  rounds = 0
+  count_player = 0
+  count_computer = 0
+  current_player = choose_first_player
 
-  loop do
-    display_board(board)
-    player_places_piece!(board)
-
-    break if someone_won?(board) || board_full?(board)
-    computer_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+  if current_player == OPPONENTS[0]
+    prompt('player begins this game')
+  else
+    prompt('computer begins this game')
   end
 
-  display_board(board)
+  sleep(0.5)
 
-  if someone_won?(board)
-    prompt("#{detect_winner(board)} won!")
+  loop do
+    board = initialize_board
+
+    loop do
+      display_board(board)
+      place_piece!(current_player, board)
+      current_player = alternate_player(current_player)
+      display_board(board)
+      sleep(0.5) && break if someone_won?(board) || board_full?(board)
+    end
+
+    if someone_won?(board)
+      prompt("#{detect_winner(board)} won this round!")
+      if detect_winner(board) == "Player"
+        count_player += 1
+      elsif detect_winner(board) == "Computer"
+        count_computer += 1
+      end
+    else
+      prompt("It´s a tie in this round!")
+    end
+
+    sleep(0.7)
+    rounds += 1
+
+    display_board(board)
+    break if rounds == 5
+  end
+
+  if count_player > 3
+    prompt("Player won this game of 5 rounds!")
+  elsif count_computer > 3
+    prompt("Computer won this game of 5 rounds!")
   else
-    prompt("It´s a tie!")
+    prompt("It´s a tie in this game of five rounds!")
   end
 
   prompt("play again (y or n)")
   answer = gets.chomp
   break unless answer.downcase.start_with?("y")
 end
-
 prompt("Thanks for playing Tic Tac Toe! Goodbye")
