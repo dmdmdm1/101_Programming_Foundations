@@ -38,7 +38,7 @@ def initialize_board
 end
 
 def choose_first_player
-  prompt("choose who should begin the game: #{OPPONENTS.join(' or ')}")
+  prompt("Choose who should begin the game: #{OPPONENTS.join(' or ')}")
   gets.chomp
 end
 
