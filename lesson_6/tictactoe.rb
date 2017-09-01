@@ -1,3 +1,5 @@
+require "pry"
+
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
@@ -38,8 +40,20 @@ def initialize_board
 end
 
 def choose_first_player
-  prompt("Choose who should begin the game: #{OPPONENTS.join(' or ')}")
-  gets.chomp
+  opponents_initials = ["p", "c"]
+  answer = ""
+  loop do
+    prompt("Choose who should begin the game: #{OPPONENTS.join(' or ')}" \
+    " 'p' or 'c'")
+    answer = gets.chomp.downcase
+    break if opponents_initials.include?(answer)
+    prompt("Answer must be 'p' or 'c'")
+  end
+  answer
+end
+
+def first_player
+  choose_first_player == "p" ? "player" : "computer"
 end
 
 def empty_squares(brd)
@@ -61,7 +75,7 @@ def place_piece!(current_player, board)
 end
 
 def alternate_player(current_player)
-  current_player == OPPONENTS[0] ? OPPONENTS[1] : OPPONENTS[0]
+  current_player == "player" ? "computer" : "player"
 end
 
 def player_places_piece!(brd)
@@ -141,7 +155,7 @@ loop do
   rounds = 0
   count_player = 0
   count_computer = 0
-  current_player = choose_first_player
+  current_player = first_player
 
   if current_player == OPPONENTS[0]
     prompt('player begins this game')
@@ -189,7 +203,8 @@ loop do
   end
 
   prompt("play again (y or n)")
-  answer = gets.chomp
-  break unless answer.downcase.start_with?("y")
+  answer = gets.chomp.downcase
+  break if answer == "n"
+  prompt("Your input is not valid. Game will restart") if answer.downcase != "y"
 end
 prompt("Thanks for playing Tic Tac Toe! Goodbye")
