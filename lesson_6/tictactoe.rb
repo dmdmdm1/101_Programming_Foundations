@@ -145,6 +145,14 @@ def detect_winner(brd)
   nil
 end
 
+def validate_answer(answer)
+  loop do
+    break if answer == "n" || answer == "y"
+    prompt("Your input is not valid. Please enter 'y' or 'n'")
+    answer = gets.chomp.downcase
+  end
+end
+
 loop do
   count_player = 0
   count_computer = 0
@@ -194,7 +202,8 @@ loop do
 
   prompt("play again (y or n)")
   answer = gets.chomp.downcase
+  validate_answer(answer)
+
   break if answer == "n"
-  prompt("Your input is not valid. Game will restart") if answer.downcase != "y"
 end
 prompt("Thanks for playing Tic Tac Toe! Goodbye")
