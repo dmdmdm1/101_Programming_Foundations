@@ -88,7 +88,7 @@ def player_places_piece!(brd)
 end
 
 def computer_places_piece!(brd)
-  if opportunity_or_danger?(brd)
+  if offensive_move_for_computer(brd) || defensive_move_for_computer(brd)
     opportunistic_or_defensive_move(brd)
   elsif empty_squares(brd).include?(5)
     brd[5] = COMPUTER_MARKER
@@ -99,28 +99,29 @@ def computer_places_piece!(brd)
   brd[square]
 end
 
-def opportunity_or_danger_condition?(brd, line)
-  (brd.values_at(*line).count(PLAYER_MARKER) == 2 ||
-  brd.values_at(*line).count(COMPUTER_MARKER) == 2) &&
+def open_line?(line, player, brd)
+  brd.values_at(*line).count(player) == 2 &&
     brd.values_at(*line).count(INITIAL_MARKER) == 1
 end
 
-def opportunity_or_danger?(brd)
+def best_move(brd, player)
   WINNING_LINES.each do |line|
-    return true if opportunity_or_danger_condition?(brd, line)
+    return line if open_line?(line, player, brd)
   end
-  false
+  nil
 end
 
-def deciding_line(brd)
-  WINNING_LINES.each do |line|
-    return line if opportunity_or_danger_condition?(brd, line)
-  end
-  false
+def offensive_move_for_computer(brd)
+  best_move(brd, COMPUTER_MARKER)
+end
+
+def defensive_move_for_computer(brd)
+  best_move(brd, PLAYER_MARKER)
 end
 
 def opportunistic_or_defensive_move(brd)
-  deciding_line(brd).each do |square|
+  marker = offensive_move_for_computer(brd) ? COMPUTER_MARKER : PLAYER_MARKER
+  best_move(brd, marker).each do |square|
     brd[square] = COMPUTER_MARKER if brd[square] == INITIAL_MARKER
   end
 end
