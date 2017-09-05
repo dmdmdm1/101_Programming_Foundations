@@ -182,18 +182,15 @@ loop do
     end
 
     sleep(0.7)
-    rounds += 1
 
     display_board(board)
-    break if rounds == 5
+    break if count_player == 5 || count_computer == 5
   end
 
-  if count_player > 3
-    prompt("Player won this game of 5 rounds!")
-  elsif count_computer > 3
-    prompt("Computer won this game of 5 rounds!")
-  else
-    prompt("It´s a tie in this game of five rounds!")
+  if count_player == 5
+    prompt("Player won this game!")
+  elsif count_computer == 5
+    prompt("Computer won this game!")
   end
 
   prompt("play again (y or n)")
