@@ -151,6 +151,7 @@ def validate_answer(answer)
     prompt("Your input is not valid. Please enter 'y' or 'n'")
     answer = gets.chomp.downcase
   end
+  answer
 end
 
 loop do
@@ -203,6 +204,7 @@ loop do
   prompt("play again (y or n)")
   answer = gets.chomp.downcase
   validate_answer(answer)
+  answer = validate_answer(answer) if (answer != "n" || answer != "n")
 
   break if answer == "n"
 end
