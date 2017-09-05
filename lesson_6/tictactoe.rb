@@ -146,7 +146,6 @@ def detect_winner(brd)
 end
 
 loop do
-  rounds = 0
   count_player = 0
   count_computer = 0
   current_player = first_player
