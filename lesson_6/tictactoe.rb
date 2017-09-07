@@ -203,8 +203,7 @@ loop do
 
   prompt("play again (y or n)")
   answer = gets.chomp.downcase
-  validate_answer(answer)
-  answer = validate_answer(answer) if (answer != "n" || answer != "y")
+  answer = validate_answer(answer) 
 
   break if answer == "n"
 end
