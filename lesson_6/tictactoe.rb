@@ -1,3 +1,5 @@
+require "pry"
+
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
@@ -87,16 +89,16 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
+def center_square_if_empty(brd)
+  return 5 if brd[5] == INITIAL_MARKER
+end
+
 def computer_places_piece!(brd)
-  if offensive_move_for_computer(brd) || defensive_move_for_computer(brd)
-    opportunistic_or_defensive_move(brd)
-  elsif empty_squares(brd).include?(5)
-    brd[5] = COMPUTER_MARKER
-  else
-    square = empty_squares(brd).sample
-    brd[square] = COMPUTER_MARKER
-  end
-  brd[square]
+  square = offensive_move_for_computer(brd)
+  square = defensive_move_for_computer(brd) unless square
+  square = center_square_if_empty(brd) unless square
+  square = empty_squares(brd).sample unless square
+  brd[square] = COMPUTER_MARKER
 end
 
 def open_line?(line, player, brd)
@@ -106,7 +108,9 @@ end
 
 def best_move(brd, player)
   WINNING_LINES.each do |line|
-    return line if open_line?(line, player, brd)
+    if open_line?(line, player, brd)
+      return line.select { |square| brd[square] == INITIAL_MARKER }.first
+    end
   end
   nil
 end
@@ -117,13 +121,6 @@ end
 
 def defensive_move_for_computer(brd)
   best_move(brd, PLAYER_MARKER)
-end
-
-def opportunistic_or_defensive_move(brd)
-  marker = offensive_move_for_computer(brd) ? COMPUTER_MARKER : PLAYER_MARKER
-  best_move(brd, marker).each do |square|
-    brd[square] = COMPUTER_MARKER if brd[square] == INITIAL_MARKER
-  end
 end
 
 def board_full?(brd)
@@ -173,9 +170,11 @@ loop do
     loop do
       display_board(board)
       place_piece!(current_player, board)
+
       current_player = alternate_player(current_player)
       display_board(board)
-      sleep(0.5) && break if someone_won?(board) || board_full?(board)
+      sleep(0.5)
+      break if someone_won?(board) || board_full?(board)
     end
 
     if someone_won?(board)
@@ -203,7 +202,7 @@ loop do
 
   prompt("play again (y or n)")
   answer = gets.chomp.downcase
-  answer = validate_answer(answer) 
+  answer = validate_answer(answer)
 
   break if answer == "n"
 end
