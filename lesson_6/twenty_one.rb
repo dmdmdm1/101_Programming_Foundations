@@ -1,5 +1,3 @@
-require "pry"
-
 VALUES = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 SUITS = ["H", "D", "C", "S"]
 
@@ -16,7 +14,7 @@ def total(cards)
 
   sum = 0
   values.each do |value|
-    if value == "A"
+    if value == "A" && sum < 21
       sum += 11
     elsif value.to_i == 0
       sum += 10
@@ -25,8 +23,8 @@ def total(cards)
     end
   end
 
-  VALUES.select { |value| value == "A" }.count.times do
-    sum - 10 if sum > 21
+  values.select { |value| value == "A" }.count.times do
+    sum -= 10 if sum > 21
   end
   sum
 end
@@ -78,6 +76,15 @@ def play_again?
   answer.downcase.start_with?('y') # is the modified answer available here?
 end
 
+def end_of_round(dealer_cards, player_cards, dealer_total, player_total)
+  puts "=============="
+  prompt "Dealer has #{dealer_cards}, for a total of: #{dealer_total}"
+  prompt "Player has #{player_cards}, for a total of: #{player_total}"
+  puts "=============="
+
+  display_result(dealer_total, player_total)
+end
+
 loop do
   prompt("Welcome to 21")
 
@@ -118,8 +125,7 @@ loop do
   end
 
   if busted?(player_total)
-
-    display_result(dealer_total, player_total)
+    end_of_round(dealer_cards, player_cards, dealer_total, player_total)
     play_again? ? next : break
   else
     prompt("You stayed at #{player_total}") # if player didn't bust
@@ -136,20 +142,13 @@ loop do
   end
 
   if busted?(dealer_total)
-    prompt("dealer cards are now #{dealer_cards}")
-    display_result(dealer_total, player_total)
+    end_of_round(dealer_cards, player_cards, dealer_total, player_total)
     play_again? ? next : break
   else
     prompt("Dealer stays at #{dealer_total}")
   end
 
-  # both player and dealer stay - compare cards!
-  puts "=============="
-  prompt "Dealer has #{dealer_cards}, for a total of: #{dealer_total}"
-  prompt "Player has #{player_cards}, for a total of: #{player_total}"
-  puts "=============="
-
-  display_result(dealer_total, player_total)
+  end_of_round(dealer_cards, player_cards, dealer_total, player_total)
 
   break if play_again? == false
 end
