@@ -1,7 +1,7 @@
 VALUES = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 SUITS = ["H", "D", "C", "S"]
-GAME_AIM = 31
-MAXIMUM_HIT = 27
+GAME_AIM = 21
+MAXIMUM_HIT = 17
 
 def prompt(message)
   puts "=> #{message}"
@@ -133,6 +133,7 @@ loop do
     end
 
     sleep(1.0)
+
     if busted?(player_total)
       end_of_round(dealer_cards, player_cards, dealer_total, player_total)
       dealer_count += 1
@@ -159,6 +160,7 @@ loop do
     end
 
     sleep(1.0)
+
     if busted?(dealer_total)
       end_of_round(dealer_cards, player_cards, dealer_total, player_total)
       player_count += 1
@@ -179,13 +181,13 @@ loop do
     break if player_count == 5 || dealer_count == 5
   end
 
-    if player_count == 5
-      prompt("Player won this game!")
-    elsif dealer_count == 5
-      prompt("Dealer won this game!")
-    end
-    prompt("Thank you for playing 21")
-    break if play_again? == false
+  if player_count == 5
+    prompt("Player won this game!")
+  elsif dealer_count == 5
+    prompt("Dealer won this game!")
+  end
+  prompt("Thank you for playing 21")
+  break if play_again? == false
 end
 
 prompt("Thank you for playing 21")
