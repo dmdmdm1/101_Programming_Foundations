@@ -16,13 +16,13 @@ def total(cards)
 
   sum = 0
   values.each do |value|
-    if value == "A" && sum < GAME_AIM
-      sum += 11
-    elsif value.to_i == 0
-      sum += 10
-    else
-      sum += value.to_i
-    end
+    sum += if value == "A" && sum < GAME_AIM
+             11
+           elsif value.to_i == 0
+             10
+           else
+             value.to_i
+           end
   end
 
   values.select { |value| value == "A" }.count.times do
@@ -71,14 +71,14 @@ def play_again?
   answer = nil
   loop do
     prompt("Do you want to play again? 'y' or 'n' ")
-    answer = gets.chomp
+    answer = gets.chomp.downcase
     break if ["y", "n"].include?(answer)
     prompt("Your answer must be 'y' or 'n'")
   end
-  answer.downcase.start_with?('y') # is the modified answer available here?
+  answer.start_with?('y')
 end
 
-def end_of_round(dealer_cards, player_cards, dealer_total, player_total)
+def display_end_of_round(dealer_cards, player_cards, dealer_total, player_total)
   puts "=============="
   prompt "Dealer has #{dealer_cards}, for a total of: #{dealer_total}"
   prompt "Player has #{player_cards}, for a total of: #{player_total}"
@@ -88,10 +88,22 @@ def end_of_round(dealer_cards, player_cards, dealer_total, player_total)
   sleep(1.5)
 end
 
+def tally(player_count, dealer_count)
+  prompt("Score: player = #{player_count}, dealer = #{dealer_count}")
+  sleep(2.0)
+  puts "---------------------"
+  sleep(1.0)
+end
+
+def someone_won?(player_count, dealer_count)
+  player_count == 5 || dealer_count == 5
+end
+
 loop do
   player_count = 0
   dealer_count = 0
-  prompt("Welcome to 21")
+  prompt("Welcome to 21, The first player to win 5 rounds will win the game!")
+  sleep(1.5)
 
   loop do
     deck = initilialize_deck
@@ -103,6 +115,7 @@ loop do
       dealer_cards << deck.pop
     end
 
+    sleep(0.5)
     system "clear"
     prompt("Dealer has two cards: #{dealer_cards[0]} and ???")
     prompt("You have: #{player_cards[0]} and #{player_cards[1]}")
@@ -135,10 +148,15 @@ loop do
     sleep(1.0)
 
     if busted?(player_total)
-      end_of_round(dealer_cards, player_cards, dealer_total, player_total)
+      display_end_of_round(
+        dealer_cards,
+        player_cards,
+        dealer_total,
+        player_total
+      )
       dealer_count += 1
-      sleep(1.0)
-      break if player_count == 5 || dealer_count == 5
+      tally(player_count, dealer_count)
+      break if someone_won?(player_count, dealer_count)
       next
     else
       prompt("You stayed at #{player_total}") # if player didn't bust
@@ -162,10 +180,16 @@ loop do
     sleep(1.0)
 
     if busted?(dealer_total)
-      end_of_round(dealer_cards, player_cards, dealer_total, player_total)
+      display_end_of_round(
+        dealer_cards,
+        player_cards,
+        dealer_total,
+        player_total
+      )
       player_count += 1
+      tally(player_count, dealer_count)
       sleep(1.0)
-      break if player_count == 5 || dealer_count == 5
+      break if someone_won?(player_count, dealer_count)
       next
     else
       prompt("Dealer stays at #{dealer_total}")
@@ -173,21 +197,25 @@ loop do
     end
     sleep(1.0)
 
-    end_of_round(dealer_cards, player_cards, dealer_total, player_total)
+    display_end_of_round(dealer_cards, player_cards, dealer_total, player_total)
     player_count += 1 if detect_result(dealer_total, player_total) == :player
     dealer_count += 1 if detect_result(dealer_total, player_total) == :dealer
+    tally(player_count, dealer_count)
+    sleep(1.0)
 
     sleep(1.0)
-    break if player_count == 5 || dealer_count == 5
+    break if someone_won?(player_count, dealer_count)
   end
 
   if player_count == 5
     prompt("Player won this game!")
+    sleep(1.0)
   elsif dealer_count == 5
     prompt("Dealer won this game!")
+    sleep(1.0)
   end
   prompt("Thank you for playing 21")
-  break if play_again? == false
+  break unless play_again?
 end
 
 prompt("Thank you for playing 21")
